@@ -1,0 +1,8 @@
+syntax: glob
+mp2parse.c
+mp2parse.h
+mp2parse.o
+mp2parse.output
+mp2pdf
+mp2scan.c
+mp2scan.o

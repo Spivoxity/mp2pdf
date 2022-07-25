@@ -1,0 +1,40 @@
+% mp2pdf.tex
+
+% This file contains optional macros for scaling mp2pdf output to
+% a specified width or height.  Say
+%
+%     \mpwidth=100pt \input fig.mtx
+%
+% to scale the figure so that its width is exactly 100pt. Similarly
+% for \mpheight.  The constuction
+%
+%     \def\mpscale{0.5} \input fig.mtx
+%
+% works with or without these macros to scale the figure by a
+% specified linear factor.
+
+\newdimen\mpdimen
+
+\def\mpwidth{\let\mpsetsize=\mpsetwidth\mpdimen}
+\def\mpheight{\let\mpsetsize=\mpsetheight\mpdimen}
+
+\def\mpsetwidth{\mpdivide0 \dimen0=\mpdimen \dimen1=\mpscale\dimen1 }
+\def\mpsetheight{\mpdivide1 \dimen0=\mpscale\dimen0 \dimen1=\mpdimen}
+
+% This division routine computes x = 65536 (a/b) = (a/b) * 1pt
+% where a = \mpdimen, b = \dimen#1. It is an unrolled loop with the invariant
+%     0 <= y < b  and  65536 (a/b) = x + z (y/b), 
+% where z takes the values 65536, 256, 1.
+
+% \mpdivide -- define \mpscale to be the value of \mpdimen / \dimen#1
+\def\mpdivide#1{%
+  % We are inside a group, so let's take advantage of that.
+  \dimendef\b=#1 \dimendef\x=2 \dimendef\y=3 \dimendef\t=4
+  \y=\mpdimen \t=\y \divide\t by\b \x=65536\t 
+  \multiply\t by\b \advance\y by-\t 
+  \multiply\y by256 \t=\y \divide\t by\b \advance\x by256\t 
+  \multiply\t by\b \advance\y by-\t
+  \multiply\y by256 \divide\y by\b \advance\x by\y
+  \edef\mpscale{\expandafter\xyzzy\the\x}}
+
+{\catcode`p=12 \catcode`t=12 \gdef\xyzzy#1pt{#1}}

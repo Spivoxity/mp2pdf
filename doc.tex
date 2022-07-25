@@ -1,0 +1,64 @@
+\input jmsmac
+\stretchpage
+
+\chapter* Using MetaPost with pdfTeX/Mike Spivey, April 2009.
+
+Producing PDF files with pdfTeX is more convenient than the
+combination of ordinary TeX with dvips and ps2pdf, and it's nice to be
+able to use TrueType fonts, but MetaPost produces its output as
+Encapsulated Postscript, and pdfTeX is not directly able to
+incorporate this into a document.
+
+Several solutions to this problem are possible, and Hans Hagen (as
+a kind of {\it tour de force\/}) has implemented TeX macros that are
+capable of parsing the restricted form of Postscript output by
+MetaPost.  My solution is a separate program, implemented with more
+traditional software tools, that takes MetaPost output and translates
+it into TeX {\it input\/} for pdfTeX, using the \verb+\pdfliteral+
+primitive to write raw PDF code.  This approach has a number of
+advantages, including robustness and freedom from the limited
+precision of TeX arithmetic.  Using pdfTeX itself to write the PDF
+output makes the program simpler and more portable.
+
+\section Workflow.
+
+With \verb/mp2pdf/, figures are described in the usual MetaPost
+language, and MetaPost translates them into EPS form.  The
+\verb/mp2pdf/ program parses the subset of Postscript that is output
+by MetaPost, and produces a file of TeX input that, when processed by
+pdfTeX, results in PDF output with the same meaning as the EPS.  A
+single run of pdfTeX the combines the text of the containing document
+with the TeX code for the figures to produce a PDF file as output.
+
+If the figures use the \verb/btex/ \dots \verb/etex/ feature of
+MetaPost for labels, then ordinary (non-PDF) TeX will be invoked by
+MetaPost to typeset the labels.  The resulting DVI file is processed
+behind the scenes with dvimp to produce MetaPost input, and this
+contributes to the Postscript output of MetaPost, and is subsequently
+translated by mp2pdf into TeX input once more.  The text then passes
+through TeX again (pdfTeX this time) and becomes part of the final PDF
+output.  As we'll see, it's important that whatever typeset result was
+produced by the first pass through TeX is not disturbed by passing it
+through TeX the second time, but also important that pdfTeX is able to
+take account in compiling font subsets of the glyphs that are used in
+the labels.
+
+\section Dealing with text.
+
+\resetpar
+
+\input minus-1.mtx
+
+\font\ttx=lbtr at10pt
+
+\def\verbfont{\tt}
+
+?`Ol\'e?
+
+{\tt ?`Ol\'e?}
+
+{\ttx ?`Ol\'e?}
+
+\verb/?`/ ?`
+
+\bye
